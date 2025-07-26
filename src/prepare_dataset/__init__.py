@@ -2,7 +2,7 @@ import re
 import asyncio
 from pathlib import Path
 
-from .constants import BASE_URL, LOCALE, LIMITS, CACHE_DIR, DATASET_DIR
+from src.constants.dataset import BASE_URL, LOCALE, LIMITS, CACHE_DIR, DATASET_DIR
 from .load import download_dataset
 from .dearchivate import dearchivate_dataset
 from .filter import filter_dataset

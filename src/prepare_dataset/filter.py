@@ -7,8 +7,8 @@ from typing import Awaitable
 import pandas as pd
 from pandera.typing.pandas import DataFrame
 
-from .types import CommonVoiceModel
-from .constants import LIMITS
+from src.types.dataset import CommonVoiceModel
+from src.constants.dataset import LIMITS
 
 BATCH_SIZE = int(1e3)
 

@@ -1,7 +1,7 @@
 from typing import Final
 from pathlib import Path
 
-from .types import Splits, Limits
+from ..types.dataset import Splits, Limits
 
 # FETCH constants
 REPO_HASH: Final[str] = "3a1ecdc235db65ef38a7e97dd04b603ea68a5810"

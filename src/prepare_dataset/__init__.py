@@ -2,7 +2,7 @@ import re
 import asyncio
 from pathlib import Path
 
-from .constants import BASE_URL, LOCALE, NUMBER_OF_SHARDS, CACHE_DIR, DATASET_DIR
+from .constants import BASE_URL, LOCALE, LIMITS, CACHE_DIR, DATASET_DIR
 from .load import download_dataset
 from .dearchivate import dearchivate_dataset
 from .filter import filter_dataset
@@ -22,13 +22,13 @@ def title_print(message: str) -> None:
 def prepare_files_to_download() -> list[tuple[Path, Path]]:
     files_to_download = []
 
-    for split in NUMBER_OF_SHARDS.keys():
+    for split in LIMITS.keys():
         file_path = f"transcript/{LOCALE}/{split}.tsv"
         files_to_download.append((BASE_URL / file_path, CACHE_DIR / file_path))
 
-    for split, num_shards in NUMBER_OF_SHARDS.items():
+    for split, limit in LIMITS.items():
         shard_path = f"audio/{LOCALE}/{split}"
-        for shard in range(num_shards):
+        for shard in range(limit.NUMBER_OF_SHARDS):
             file_path = f"{shard_path}/{LOCALE}_{split}_{shard}.tar"
             files_to_download.append((BASE_URL / file_path, CACHE_DIR / file_path))
 

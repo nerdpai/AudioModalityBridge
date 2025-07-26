@@ -1,10 +1,18 @@
 from typing import Literal
+from dataclasses import dataclass
 
 import pandera.pandas as pa
 from pandera.typing.pandas import Series
 
 
 Splits = Literal["train", "dev", "test"]
+
+
+@dataclass(frozen=True)
+class Limits:
+    UP_VOTES: int
+    DOWN_VOTES: int
+    NUMBER_OF_SHARDS: int
 
 
 class CommonVoiceModel(pa.DataFrameModel):

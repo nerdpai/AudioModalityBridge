@@ -16,7 +16,7 @@ def title_print(message: str) -> None:
     prefix = prefix_matches.group(1)  # type: ignore
     sufix = sufix_matches.group(1)  # type: ignore
 
-    print(f"{prefix}{'-' * 10}{message.strip()} {'-' * 10}{sufix}")
+    print(f"{prefix}{'-' * 10}{message.strip()}{'-' * 10}{sufix}")
 
 
 def prepare_files_to_download() -> list[tuple[Path, Path]]:

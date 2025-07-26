@@ -10,6 +10,30 @@ from pandera.typing.pandas import DataFrame
 from .types import CommonVoiceModel
 from .constants import LIMITS
 
+BATCH_SIZE = int(1e3)
+
+
+def process_batch(
+    df: DataFrame[CommonVoiceModel],
+    data_dir: Path,
+    up_votes: int,
+    down_votes: int,
+):
+    rm_files = []
+
+    for row in list(df.itertuples()):
+        audio_path = data_dir / row.path  # type: ignore
+
+        if not audio_path.exists():
+            df.drop(row.Index, inplace=True)
+            continue
+
+        if row.up_votes < up_votes or row.down_votes > down_votes:  # type: ignore
+            df.drop(row.Index, inplace=True)
+            rm_files.append(audio_path)
+
+    return df, rm_files
+
 
 async def _filter_path(
     df: DataFrame[CommonVoiceModel], data_dir: Path
@@ -21,17 +45,21 @@ async def _filter_path(
     up_votes = LIMITS[split].UP_VOTES  # type: ignore
     down_votes = LIMITS[split].DOWN_VOTES  # type: ignore
 
+    tasks = []
+    for i in range(0, len(df), BATCH_SIZE):
+        batch = df.iloc[i : i + BATCH_SIZE].copy()
+        task = asyncio.create_task(
+            asyncio.to_thread(process_batch, batch, data_dir, up_votes, down_votes)
+        )
+        tasks.append(task)
+
+    dfs = []
     rm_files = []
-    for row in list(df.itertuples()):
-        audio_path = data_dir / row.path  # type: ignore
+    for df, rm_f in await asyncio.gather(*tasks):
+        dfs.append(df)
+        rm_files.extend(rm_f)
 
-        if not audio_path.exists():
-            df.drop(row.Index, inplace=True)
-            continue
-
-        if row.up_votes < up_votes or row.down_votes > down_votes:  # type: ignore
-            df.drop(row.Index, inplace=True)
-            rm_files.append(audio_path)
+    df = pd.concat(dfs, ignore_index=True)  # type: ignore
 
     await move_files(rm_files, rm_dir)
     shutil.rmtree(rm_dir)

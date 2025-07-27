@@ -6,4 +6,7 @@
 .cache/**
 .datasets/**
 datasets.tar
+.hf/**
 .experiments/**
+
+secrets.json

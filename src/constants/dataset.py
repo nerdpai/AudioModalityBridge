@@ -14,12 +14,12 @@ LIMITS: dict[Splits, Limits] = {
     "train": Limits(
         UP_VOTES=4,
         DOWN_VOTES=0,
-        NUMBER_OF_SHARDS=13,
+        NUMBER_OF_SHARDS=0,
     ),
     "dev": Limits(
         UP_VOTES=4,
         DOWN_VOTES=0,
-        NUMBER_OF_SHARDS=1,
+        NUMBER_OF_SHARDS=0,
     ),
     "test": Limits(
         UP_VOTES=4,

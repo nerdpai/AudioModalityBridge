@@ -9,3 +9,6 @@ aiohttp==3.12.14
 pandas==2.3.1
 pandera[pandas]==0.25.0
 torch==2.7.1
+numpy==2.3.2
+torchaudio==2.7.1
+scipy==1.16.1

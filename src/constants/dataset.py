@@ -14,12 +14,12 @@ LIMITS: dict[Splits, Limits] = {
     "train": Limits(
         UP_VOTES=4,
         DOWN_VOTES=0,
-        NUMBER_OF_SHARDS=0,
+        NUMBER_OF_SHARDS=24,
     ),
     "dev": Limits(
         UP_VOTES=4,
         DOWN_VOTES=0,
-        NUMBER_OF_SHARDS=0,
+        NUMBER_OF_SHARDS=1,
     ),
     "test": Limits(
         UP_VOTES=4,
@@ -31,3 +31,6 @@ LIMITS: dict[Splits, Limits] = {
 # PATHES constants
 CACHE_DIR: Final[Path] = Path("./.cache/mozilla_common_voice").resolve()
 DATASET_DIR: Final[Path] = Path("./.datasets/mozilla_common_voice").resolve()
+
+# Dset constants
+SAMPLING_RATE: Final[int] = 16_000

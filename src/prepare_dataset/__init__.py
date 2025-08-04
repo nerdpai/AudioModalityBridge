@@ -1,25 +1,15 @@
-import re
 import asyncio
 import shutil
 from pathlib import Path
 
 from src.constants.dataset import BASE_URL, LOCALE, LIMITS, CACHE_DIR, DATASET_DIR
 from src.utils.bool import parse_bool
+from src.utils.print import title_print
 from .load import download_dataset
 from .dearchivate import dearchivate_dataset
 from .filter import filter_dataset
 from .remove import remove_tars
 from .move import move_dataset
-
-
-def title_print(message: str) -> None:
-    prefix_matches = re.match(r"^(\n*).*", message)
-    sufix_matches = re.match(r"^(\n*).*", message[::-1])
-
-    prefix = prefix_matches.group(1)  # type: ignore
-    sufix = sufix_matches.group(1)  # type: ignore
-
-    print(f"{prefix}{'-' * 10}{message.strip()}{'-' * 10}{sufix}")
 
 
 def prepare_files_to_download() -> list[tuple[Path, Path]]:

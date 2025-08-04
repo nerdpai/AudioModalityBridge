@@ -16,18 +16,20 @@ from .save import append_result
 
 
 def sanity_check() -> bool:
+    if not RESULTS_PATH.exists():
+        RESULTS_PATH.mkdir(parents=True, exist_ok=True)
+        return True
+
+    should = input(
+        f"Result for presets: {RESULTS_PATH} already exists. Should I remove it? (y/n): "
+    )
+    if not parse_bool(should):
+        print("Exiting without changes.")
+        return False
+
+    shutil.rmtree(RESULTS_PATH)
     RESULTS_PATH.mkdir(parents=True, exist_ok=True)
 
-    if RESULTS_PATH.exists():
-        should = input(
-            f"Result for presets: {RESULTS_PATH} already exists. Should I remove it? (y/n): "
-        )
-        if not parse_bool(should):
-            print("Exiting without changes.")
-            return False
-
-        shutil.rmtree(RESULTS_PATH)
-        return True
     return True
 
 

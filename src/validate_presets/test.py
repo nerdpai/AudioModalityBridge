@@ -73,11 +73,12 @@ def test_preset(
         predicted_y: Tensor = model(**inputs.asdict())
 
         loss: Tensor = loss_fn(predicted_y, true_y)
-        loss = loss.sum(dim=1)
+        loss = loss.sum(dim=1).mean()
         accuracy: Tensor = accuracy_fn(predicted_y, true_y)
+        accuracy = accuracy.mean()
 
-        losses.append(loss.mean().item())
-        accuracies.append(accuracy.mean().item())
+        losses.append(loss.item())
+        accuracies.append(accuracy.item())
 
         t.set_postfix_str(
             f"Loss: {np.mean(losses[-1]):.4f}, Accuracy: {np.mean(accuracies[-1]):.4f}"

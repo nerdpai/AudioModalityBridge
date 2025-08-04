@@ -2,10 +2,12 @@ from typing import Callable
 
 from src import (
     prepare_dataset,
+    validate_presets,
 )
 
 MODULES: dict[str, Callable[[], None]] = {
     "Prepare COMMON_VOICE Dataset": prepare_dataset.run,
+    "Validate Model Presets": validate_presets.run,
 }
 
 
@@ -26,11 +28,12 @@ def options_loop(modules: list[Callable]):
                 print("Exiting...")
                 break
 
-            modules[choice]()
-
         except ValueError as e:
             print(f"Invalid input: {e}")
             print("Please enter a valid number.")
+            continue
+
+        modules[choice]()
 
 
 def main():

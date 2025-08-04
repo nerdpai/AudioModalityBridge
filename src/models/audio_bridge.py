@@ -16,7 +16,7 @@ TensorTypes = Literal["pt"]
 
 @dataclass
 class PreProcessed:
-    inputs: Tensor
+    audio_inputs: Tensor
     attention_mask: Optional[Tensor]
     chunk_mask: Tensor
 

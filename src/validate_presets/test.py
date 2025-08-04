@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from src.models.presets import VoiceLMGen
 from src.models.voicelm import VoiceLM
-from .prepare import get_true_labels, prepare_parameters
+from .prepare import get_true_labels, get_inputs, prepare_parameters
 from .clean import cleanup_model
 
 
@@ -69,7 +69,8 @@ def test_preset(
         transcripts: list[str] = batch[1]
 
         true_y = get_true_labels(transcripts, get_model(model))
-        predicted_y: Tensor = model(audio_samples=audio_data)
+        inputs = get_inputs(audio_data, get_model(model))
+        predicted_y: Tensor = model(**inputs.asdict())
 
         loss: Tensor = loss_fn(predicted_y, true_y)
         loss = loss.sum(dim=1)

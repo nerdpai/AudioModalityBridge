@@ -21,7 +21,7 @@ PRESETS: list[Preset] = [
 ]
 
 # Validation presets
-BATCH_SIZE: Final[int] = 32
+BATCH_SIZE: Final[int] = 24
 DATA_SPLIT: Final[Splits] = "test"
 NUM_WORKERS: Final[int] = 8
 LEARNING_RATE: Final[float] = 1e-3

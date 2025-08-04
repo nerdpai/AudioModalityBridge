@@ -23,6 +23,11 @@ def get_true_labels(transcripts: list[str], model: VoiceLM) -> torch.Tensor:
     )
 
 
+@torch.no_grad()
+def get_inputs(audio_samples: list[np.ndarray], model: VoiceLM):
+    return model.audio_bridge.preprocess_audio(audio_samples)
+
+
 def prepare_parameters(model: VoiceLM):
     for p in model.language_model.parameters():
         p.requires_grad = False

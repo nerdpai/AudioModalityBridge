@@ -30,15 +30,19 @@ class VoiceLM(nn.Module):
     def forward(
         self,
         input_ids: Optional[torch.LongTensor] = None,
-        audio_samples: Optional[list[np.ndarray]] = None,
+        audio_inputs: Optional[torch.FloatTensor] = None,
         attention_mask: Optional[torch.LongTensor] = None,
+        chunk_mask: Optional[torch.LongTensor] = None,
     ) -> torch.Tensor:
 
         if input_ids is not None:
             input_embeds = self.language_model.embed_layer(input_ids)
-        elif audio_samples is not None:
-            preprocessed = self.audio_bridge.preprocess_audio(audio_samples)
-            input_embeds, attention_mask = self.audio_bridge(**preprocessed.asdict())
+        elif audio_inputs is not None:
+            input_embeds, attention_mask = self.audio_bridge(
+                audio_inputs,
+                attention_mask,
+                chunk_mask,
+            )
         else:
             raise ValueError("Either input_ids or audio_samples must be provided.")
 

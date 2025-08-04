@@ -13,6 +13,9 @@ def set_huggingface_env():
     os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
     os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
 
+    # tokenizer
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def set_env():
     set_huggingface_env()

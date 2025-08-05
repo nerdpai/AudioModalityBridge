@@ -28,6 +28,9 @@ def create_factory(
     if a_config.embed_dim % preset.num_atten_heads != 0:
         return None
 
+    if preset.translate_chunk_seconds > preset.in_out_rel:
+        return None
+
     def preset_fn() -> VoiceLM:
         audio_model = audio_t()
         llm_model = llm_t()

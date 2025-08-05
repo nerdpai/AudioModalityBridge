@@ -93,7 +93,7 @@ def test_preset(
 
     return Result(
         best_loss=min(losses),
-        best_accuracy=min(accuracies),
+        best_accuracy=max(accuracies),
         mean_loss=np.mean(losses).item(),
         mean_accuracy=np.mean(accuracies).item(),
     )

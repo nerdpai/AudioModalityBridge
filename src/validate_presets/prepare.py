@@ -1,12 +1,25 @@
+from typing import Union
+
 import numpy as np
 import torch
+from torch.nn import DataParallel
 
 from src.models.voicelm import VoiceLM
 
 
+def get_model(model: Union[VoiceLM, DataParallel[VoiceLM]]) -> VoiceLM:
+    if isinstance(model, DataParallel):
+        return model.module
+    return model
+
+
 @torch.no_grad()
-def get_true_labels(transcripts: list[str], model: VoiceLM) -> torch.Tensor:
-    tokenized = model.tokenizer(
+def get_true_labels(
+    transcripts: list[str], model: Union[DataParallel[VoiceLM], VoiceLM]
+) -> torch.Tensor:
+    voicelm = get_model(model)
+
+    tokenized = voicelm.tokenizer(
         transcripts,
         return_tensors="pt",
         padding=True,
@@ -18,13 +31,16 @@ def get_true_labels(transcripts: list[str], model: VoiceLM) -> torch.Tensor:
     attention_mask: torch.Tensor = tokenized["attention_mask"]  # type: ignore
 
     return model(
-        input_ids=input_ids.to(model.device),
-        attention_mask=attention_mask.to(model.device),
+        input_ids=input_ids.to(voicelm.device),
+        attention_mask=attention_mask.to(voicelm.device),
     )
 
 
 @torch.no_grad()
-def get_inputs(audio_samples: list[np.ndarray], model: VoiceLM):
+def get_inputs(
+    audio_samples: list[np.ndarray], model: Union[DataParallel[VoiceLM], VoiceLM]
+):
+    model = get_model(model)
     return model.audio_bridge.preprocess_audio(audio_samples)
 
 

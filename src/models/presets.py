@@ -1,6 +1,6 @@
-from typing import Literal, Callable, TypeVar, Type, Optional
+from typing import Callable, TypeVar, Type, Optional
 
-from src.types.preset import Preset
+from src.types.preset import Preset, PresetsTypes
 from src.constants.presets import PRESETS
 from .llm.llama import LLama3Model
 from .voicelm import VoiceLM
@@ -13,13 +13,7 @@ from .language_model import LanguageModelProtocol
 A = TypeVar("A", bound=AudioModelProtocol)
 L = TypeVar("L", bound=LanguageModelProtocol)
 
-PresetsTypes = Literal[
-    "classification/wav2vec2",
-    "classification/ast",
-    "asr/s2t",
-    "asr/wav2vec2",
-    "asr/whisper",
-]
+
 VoiceLMGen = Callable[[], VoiceLM]
 PresetFactory = tuple[Preset, VoiceLMGen]
 PresetsFactory = dict[PresetsTypes, list[PresetFactory]]

@@ -1,4 +1,13 @@
 from dataclasses import dataclass
+from typing import Literal
+
+PresetsTypes = Literal[
+    "classification/wav2vec2",
+    "classification/ast",
+    "asr/s2t",
+    "asr/wav2vec2",
+    "asr/whisper",
+]
 
 
 @dataclass(frozen=True)

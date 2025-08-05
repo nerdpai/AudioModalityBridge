@@ -43,12 +43,6 @@ def get_trainable_parameters(model: Union[VoiceLM, DataParallel[VoiceLM]]):
     return model.audio_bridge.bridge_model.parameters()
 
 
-def get_model(model: Union[VoiceLM, DataParallel[VoiceLM]]) -> VoiceLM:
-    if isinstance(model, DataParallel):
-        return model.module
-    return model
-
-
 def test_preset(
     data_loader: DataLoader,
     model_creator: VoiceLMGen,
@@ -68,8 +62,8 @@ def test_preset(
         audio_data: list[np.ndarray] = batch[0]
         transcripts: list[str] = batch[1]
 
-        true_y = get_true_labels(transcripts, get_model(model))
-        inputs = get_inputs(audio_data, get_model(model))
+        true_y = get_true_labels(transcripts, model)
+        inputs = get_inputs(audio_data, model)
         predicted_y: Tensor = model(**inputs.asdict())
 
         loss: Tensor = loss_fn(predicted_y, true_y)

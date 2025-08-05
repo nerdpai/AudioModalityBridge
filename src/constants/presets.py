@@ -8,7 +8,7 @@ from src.utils.collections import named_product
 
 # Preset values
 ATTENTION_HEADS = [6, 8, 12, 16]
-CHUNK_SECONDS = [1.0, 2.0, 5.0]
+CHUNK_SECONDS = [5.0, 2.0, 1.0]
 IN_OUT_REL = [1.0, 1.5, 2.0, 4.0, 8.0, 16.0]
 OVERLAP_AUDIO_CHUNKS = [True, False]
 

@@ -3,11 +3,13 @@ from typing import Callable
 from src import (
     prepare_dataset,
     validate_presets,
+    train_models,
 )
 
 MODULES: dict[str, Callable[[], None]] = {
     "Prepare COMMON_VOICE Dataset": prepare_dataset.run,
     "Validate Model Presets": validate_presets.run,
+    "Train Models": train_models.run,
 }
 
 

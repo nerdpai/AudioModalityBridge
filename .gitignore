@@ -8,5 +8,8 @@
 dsets/**
 .hf/**
 .experiments/**
+.results/**
+.models/**
+.temp/**
 
 secrets.json

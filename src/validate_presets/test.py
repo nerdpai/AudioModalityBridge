@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 from torch.nn import DataParallel
 from tqdm import tqdm
 
+from src.utils.cleanup import cleanup_model
 from src.models.presets import VoiceLMGen
 from src.models.voicelm import VoiceLM
 from .prepare import get_true_labels, get_inputs, prepare_parameters
-from .clean import cleanup_model
 
 
 @dataclass(frozen=True)
@@ -74,9 +74,7 @@ def test_preset(
         losses.append(loss.item())
         accuracies.append(accuracy.item())
 
-        t.set_postfix_str(
-            f"Loss: {np.mean(losses[-1]):.4f}, Accuracy: {np.mean(accuracies[-1]):.4f}"
-        )
+        t.set_postfix_str(f"Loss: {losses[-1]:.4f}, Accuracy: {accuracies[-1]:.4f}")
 
         loss.backward()
         optimizer.step()

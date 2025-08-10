@@ -8,8 +8,8 @@ from src.constants.presets import (
     LEARNING_RATE,
     RESULTS_PATH,
 )
+from src.utils.dataloader import get_loader
 from src.models.presets import PRESETS_FACTORY
-from .dataloader import get_loader
 from .test import test_preset
 from .save import append_result
 

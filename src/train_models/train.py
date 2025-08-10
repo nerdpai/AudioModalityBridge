@@ -67,7 +67,7 @@ def _train(
         mode="min",
         factor=lr_factor,
         patience=patience,
-        min_lr=lr * 0.1,
+        min_lr=lr * 0.01,
     )
 
     for epoch in range(num_epochs):

@@ -113,7 +113,7 @@ class VoiceLM(nn.Module):
         input_embeds = torch.cat(embeds_list, dim=1)
         attention_mask = torch.cat(masks_list, dim=1)
 
-        self.language_model.generate(
+        return self.language_model.generate(
             inputs_embeds=input_embeds,  # type: ignore
             attention_mask=attention_mask,  # type: ignore
             **kwargs,

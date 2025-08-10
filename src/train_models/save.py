@@ -21,6 +21,34 @@ def save_model(
     save_pickle(model, model_path / "model.pkl")
 
 
+def plot_data(
+    loss: list[float],
+    accuracy: list[float],
+    xlabel: str,
+    result_path: Path,
+    plot_type: PlotTypes,
+) -> None:
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    color = "red"
+    ax1.set_xlabel(xlabel)
+    ax1.set_ylabel("Loss", color=color)
+    ax1.plot(loss, color=color, label="Loss")
+    ax1.tick_params(axis="y", labelcolor=color)
+    ax1.grid(True)
+
+    ax2 = ax1.twinx()
+    color = "blue"
+    ax2.set_ylabel("Accuracy", color=color)
+    ax2.plot(accuracy, color=color, label="Accuracy")
+    ax2.tick_params(axis="y", labelcolor=color)
+
+    plt.title(f"{plot_type.capitalize()} Metrics per {xlabel}")
+    fig.tight_layout()
+    plt.savefig(result_path / f"{plot_type}_{xlabel.lower()}.png")
+    plt.close()
+
+
 def plot_result(result: Result, plot_type: PlotTypes, result_path: Path) -> None:
     result_path.mkdir(parents=True, exist_ok=True)
     loss: list[list[float]] = []
@@ -38,29 +66,8 @@ def plot_result(result: Result, plot_type: PlotTypes, result_path: Path) -> None
     loss_batch: list[float] = np.concatenate(loss).tolist()
     accuracy_batch: list[float] = np.concatenate(accuracy).tolist()
 
-    # epoch plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(loss_epoch, color="red", label="Loss")
-    plt.plot(accuracy_epoch, color="blue", label="Accuracy")
-    plt.title(f"{plot_type.capitalize()} Metrics per Epoch")
-    plt.xlabel("Epoch")
-    plt.ylabel("Value")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(result_path / f"{plot_type}_epoch.png")
-    plt.close()
-
-    # batch plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(loss_batch, color="red", label="Loss")
-    plt.plot(accuracy_batch, color="blue", label="Accuracy")
-    plt.title(f"{plot_type.capitalize()} Metrics per Batch")
-    plt.xlabel("Batch")
-    plt.ylabel("Value")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(result_path / f"{plot_type}_batch.png")
-    plt.close()
+    plot_data(loss_epoch, accuracy_epoch, "Epoch", result_path, plot_type)
+    plot_data(loss_batch, accuracy_batch, "Batch", result_path, plot_type)
 
 
 def save_results(

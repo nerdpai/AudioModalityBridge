@@ -21,7 +21,7 @@ def save_torch(
 
 
 def load_torch(model_t: Type[T], filepath: Path) -> T:
-    checkpoint = torch.load(filepath, map_location="cpu")
+    checkpoint = torch.load(filepath, map_location="cpu", weights_only=False)
     return checkpoint["model"]
 
 

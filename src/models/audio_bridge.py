@@ -219,21 +219,21 @@ class AudioBridge(nn.Module):
 
     def forward(
         self,
-        inputs: Tensor,  # [batch, chunks, max_len...]
+        audio_inputs: Tensor,  # [batch, chunks, max_len...]
         attention_mask: Optional[Tensor],  # [batch, chunks, max_len...]
         chunk_mask: Tensor,  # [batch, chunks]
     ) -> tuple[Tensor, Tensor]:
-        input_size = inputs.size()
+        input_size = audio_inputs.size()
         reshape = (
             -1,  # batch * chunks
             *input_size[2:],  # max_len
         )
-        inputs = inputs.view(reshape)
+        audio_inputs = audio_inputs.view(reshape)
         if attention_mask is not None:
             attention_mask = attention_mask.view(reshape)
 
         audio_embed: Tensor = self.audio_model(
-            inputs,
+            audio_inputs,
             attention_mask=attention_mask,
             output_attentions=False,
             output_hidden_states=False,

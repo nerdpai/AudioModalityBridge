@@ -75,6 +75,9 @@ class VoiceLM(nn.Module):
             input_ids = input_ids.unsqueeze(0)
             attention_mask = attention_mask.unsqueeze(0)
 
+        input_ids = input_ids.to(self.device)
+        attention_mask = attention_mask.to(self.device)
+
         input_embeds = self.language_model.embed_layer(input_ids)
 
         return input_embeds, attention_mask

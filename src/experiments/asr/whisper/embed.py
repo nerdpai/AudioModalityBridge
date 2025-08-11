@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from scipy.io.wavfile import read
+from torchaudio import load
 from transformers.models.whisper import (
     WhisperForConditionalGeneration,
     WhisperFeatureExtractor,
@@ -26,7 +26,13 @@ feature_extractor = WhisperFeatureExtractor.from_pretrained(
     revision="e8727524f962ee844a7319d92be39ac1bd25655a",
 )
 
-sr, audio = read("src/experiments/data/war_face.wav")
+audio, sr = load(
+    "src/experiments/data/war_face.wav",
+    normalize=True,
+    channels_first=True,
+    backend="ffmpeg",
+)
+audio = audio[0].numpy()
 audio = np.asarray(audio, dtype=np.float32)
 
 print(f"Audio shape: {audio.shape}, Sampling rate: {sr}")

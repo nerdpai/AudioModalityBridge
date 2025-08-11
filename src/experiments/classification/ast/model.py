@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from scipy.io.wavfile import read
+from torchaudio import load
 from transformers.models.audio_spectrogram_transformer import (
     ASTForAudioClassification,
     ASTFeatureExtractor,
@@ -25,7 +25,13 @@ feature_extractor = ASTFeatureExtractor.from_pretrained(
     revision="1913c7d7957c8f5c1e32f20f168a3d12ec9530fb",
 )
 
-audio = read("src/experiments/data/war_face.wav")[1]
+audio, sr = load(
+    "src/experiments/data/war_face.wav",
+    normalize=True,
+    channels_first=True,
+    backend="ffmpeg",
+)
+audio = audio[0].numpy()
 audio = np.asarray(audio, dtype=np.float32)
 
 print(f"Audio shape: {audio.shape}")

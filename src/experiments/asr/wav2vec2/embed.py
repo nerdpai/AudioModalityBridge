@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from scipy.io.wavfile import read
+from torchaudio import load
 from transformers.models.wav2vec2 import (
     Wav2Vec2FeatureExtractor,
     Wav2Vec2ForCTC,
@@ -26,7 +26,13 @@ processor = Wav2Vec2FeatureExtractor.from_pretrained(
     revision="bdeaacdf88f7a155f50a2704bc967aa81fbbb2ab",
 )
 
-sr, audio = read("src/experiments/data/war_face.wav")
+audio, sr = load(
+    "src/experiments/data/war_face.wav",
+    normalize=True,
+    channels_first=True,
+    backend="ffmpeg",
+)
+audio = audio[0].numpy()
 audio = np.asarray(audio, dtype=np.float32)
 
 print(f"Audio shape: {audio.shape}, Sampling rate: {sr}")

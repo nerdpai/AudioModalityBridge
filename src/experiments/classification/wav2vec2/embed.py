@@ -1,5 +1,5 @@
 import torch
-from scipy.io.wavfile import read
+from torchaudio import load
 from transformers.models.wav2vec2 import (
     Wav2Vec2ForSequenceClassification,
     Wav2Vec2FeatureExtractor,
@@ -25,7 +25,13 @@ feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
     revision="9bc54869d8082fc35adcbbf6f603e8365621f8e0",
 )
 
-audio = read("src/experiments/data/war_face.wav")[1]
+audio, sr = load(
+    "src/experiments/data/war_face.wav",
+    normalize=True,
+    channels_first=True,
+    backend="ffmpeg",
+)
+audio = audio[0].numpy()
 print(f"Audio shape: {audio.shape}")
 features = feature_extractor(
     audio, return_tensors="pt", sampling_rate=16000, return_attention_mask=True

@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from scipy.io.wavfile import read
+from torchaudio import load
 from transformers.models.speech_to_text import (
     Speech2TextFeatureExtractor,
     Speech2TextForConditionalGeneration,
@@ -26,7 +26,13 @@ feature_extractor = Speech2TextFeatureExtractor.from_pretrained(
     revision="a4b4750ad1425acda0dbd1daa9188d5fd7872491",
 )
 
-sr, audio = read("src/experiments/data/war_face.wav")
+audio, sr = load(
+    "src/experiments/data/war_face.wav",
+    normalize=True,
+    channels_first=True,
+    backend="ffmpeg",
+)
+audio = audio[0].numpy()
 audio = np.asarray(audio, dtype=np.float32)
 
 print(f"Audio shape: {audio.shape}, Sampling rate: {sr}")

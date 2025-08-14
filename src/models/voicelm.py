@@ -336,5 +336,6 @@ class VoiceLM(nn.Module):
         return self.language_model.generate(
             inputs_embeds=input_embeds,  # type: ignore
             attention_mask=attention_mask,  # type: ignore
+            pad_token_id=self.tokenizer.pad_token_id,
             **kwargs,
         )

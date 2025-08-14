@@ -73,6 +73,7 @@ def get_additional(
         max_new_tokens=max_new_tokens,
         do_sample=False,
         temperature=1.0,
+        top_p=None,
     )  # type: ignore
     additional: list[str] = voicelm.tokenizer.batch_decode(
         additional_ids, skip_special_tokens=False

@@ -19,7 +19,7 @@ class LLama3Model(LanguageModel):
         tokenizer: PreTrainedTokenizerFast = PreTrainedTokenizerFast.from_pretrained(
             **card
         )
-        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token = "<|end_of_text|>"
 
         super().__init__(
             model,

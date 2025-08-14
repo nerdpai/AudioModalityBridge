@@ -1,6 +1,7 @@
 import gc
 from dataclasses import dataclass
 from typing import Union
+from itertools import islice
 
 import numpy as np
 import torch
@@ -12,7 +13,12 @@ from tqdm import tqdm
 from src.utils.cleanup import cleanup_model
 from src.models.presets import VoiceLMGen
 from src.models.voicelm import VoiceLM
-from .prepare import get_true_labels, get_inputs, prepare_parameters
+from .prepare import (
+    get_instruction,
+    get_additional,
+    get_model_inputs,
+    prepare_parameters,
+)
 
 
 @dataclass(frozen=True)
@@ -46,6 +52,8 @@ def get_trainable_parameters(model: Union[VoiceLM, DataParallel[VoiceLM]]):
 def test_preset(
     data_loader: DataLoader,
     model_creator: VoiceLMGen,
+    max_steps: int,
+    max_new_tokens: int,
     lr: float,
 ) -> Result:
     losses = []
@@ -57,17 +65,28 @@ def test_preset(
     accuracy_fn = torch.nn.CosineSimilarity(dim=1)
     optimizer = torch.optim.Adam(get_trainable_parameters(model), lr=lr)
 
-    t = tqdm(data_loader)
+    data_iter = iter(data_loader)
+    if len(data_loader) > max_steps:
+        data_iter = islice(data_iter, max_steps)
+    else:
+        max_steps = len(data_loader)
+
+    t = tqdm(data_iter, total=max_steps)
     for batch in t:
         audio_data: list[np.ndarray] = batch[0]
         transcripts: list[str] = batch[1]
 
-        true_y = get_true_labels(transcripts, model)
-        inputs = get_inputs(audio_data, model)
-        predicted_y: Tensor = model(**inputs.asdict())
+        instruction = get_instruction(model)
+        additional = get_additional(model, instruction, transcripts, max_new_tokens)
+
+        text_inputs = get_model_inputs(model, instruction, additional, transcripts)
+        audio_inputs = get_model_inputs(model, instruction, additional, audio_data)
+
+        true_y = model(**text_inputs)  # [batch, seq, hidden]
+        predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
 
         loss: Tensor = loss_fn(predicted_y, true_y)
-        loss = loss.sum(dim=1).mean()
+        loss = loss.sum(dim=2).mean()
         accuracy: Tensor = accuracy_fn(predicted_y, true_y)
         accuracy = accuracy.mean()
 

@@ -113,6 +113,5 @@ PRESETS_FACTORY: PresetsFactory = {
     **classification_wav2vec2(),
     **classification_ast(),
     **asr_wav2vec2(),
-    **asr_s2t(),
     **asr_whisper(),
 }

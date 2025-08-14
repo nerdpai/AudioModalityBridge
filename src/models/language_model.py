@@ -48,21 +48,13 @@ class LanguageModel(nn.Module):
         use_cache: Optional[bool] = None,
         **kwargs,
     ) -> torch.Tensor:
-        last_hidden_state = self.step_model(
+        return self.step_model(
             inputs_embeds=inputs,
             attention_mask=attention_mask,
             cache_position=cache_position,
             use_cache=use_cache,
             **kwargs,
         ).last_hidden_state
-
-        seq_lengths = attention_mask.sum(dim=1) - 1  # [batch]
-        batch_size = seq_lengths.shape[0]
-        last_token_embeddings = last_hidden_state[
-            torch.arange(batch_size), seq_lengths
-        ]  # [batch, hidden]
-
-        return last_token_embeddings
 
     @torch.no_grad()
     def generate(

@@ -25,9 +25,30 @@ tokenizer: PreTrainedTokenizerFast = PreTrainedTokenizerFast.from_pretrained(
 messages = [
     {
         "role": "system",
-        "content": "You are a pirate chatbot who always responds in pirate speak!",
+        "content": "You are a translating bot, your input is English text and output is the same text but in German."
+                    "Output should only contain the translate of the user text, no additional information or original text. "
+                    "Don't answer or continue user text in specified language, just translate it." # fmt: skip
     },
-    {"role": "user", "content": "Who are you?"},
+    {
+        "role": "user",
+        "content": "So, what is the weather like in Paris today? Is it cold or probably some rain?",
+    },
+    {
+        "role": "assistant",
+        "content": "Wie ist das Wetter heute in Paris? Ist es kalt oder regnet es vielleicht?",
+    },
+    {
+        "role": "user",
+        "content": "Hey, how are you feeling today? Any hangover?",
+    },
+    {
+        "role": "assistant",
+        "content": "Hey, wie geht es dir heute? Hast du einen Kater?",
+    },
+    {
+        "role": "user",
+        "content": "The Dunai is the most trustworthy river ever existed, you can swim wherever in Europe by it.",
+    },
 ]
 
 formated_input: str = tokenizer.apply_chat_template(
@@ -37,14 +58,17 @@ formated_input: str = tokenizer.apply_chat_template(
 print(f"Input: {formated_input}")
 
 
-encodings: BatchEncoding = tokenizer(formated_input, return_tensors="pt")
+encodings: BatchEncoding = tokenizer(
+    formated_input, return_tensors="pt", add_special_tokens=False
+)
+print(encodings["input_ids"].shape)
 
 outputs = model.generate(
     input_ids=encodings["input_ids"].to(model.device),
     attention_mask=encodings["attention_mask"].to(model.device),
-    max_new_tokens=256,
+    max_new_tokens=2048,
     do_sample=True,
 )
 
-decoded = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+decoded = tokenizer.batch_decode(outputs, skip_special_tokens=False)
 print(f"Decoded: {decoded}")

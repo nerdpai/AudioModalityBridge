@@ -2,6 +2,8 @@ import sys
 
 from src.types.preset import PresetsTypes
 from src.constants.presets import (
+    MAX_STEPS,
+    MAX_GEN_LENGTH,
     BATCH_SIZE,
     DATA_SPLIT,
     NUM_WORKERS,
@@ -23,7 +25,13 @@ def main():
     save_file = RESULTS_PATH / f"{model_name}.json"
     factory = PRESETS_FACTORY[model_name][preset_id]
 
-    result = test_preset(data_loader, factory[1], LEARNING_RATE)
+    result = test_preset(
+        data_loader,
+        factory[1],
+        MAX_STEPS,
+        MAX_GEN_LENGTH,
+        LEARNING_RATE,
+    )
     append_result(result, factory[0], save_file)
 
 

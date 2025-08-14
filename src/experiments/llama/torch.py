@@ -52,3 +52,4 @@ with torch.no_grad():
     )
 
     print(f"Embedding of next token: {outputs.last_hidden_state[0, -1, :]}")
+    print(f"Shape of the sequence: {outputs.last_hidden_state.shape}")

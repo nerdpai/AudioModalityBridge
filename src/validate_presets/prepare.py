@@ -9,14 +9,13 @@ from transformers.tokenization_utils_base import BatchEncoding
 from src.constants.few_shot import FEW_SHOT_TEMPLATES
 from src.models.voicelm import VoiceLM
 
+Model: TypeAlias = Union[DataParallel[VoiceLM], VoiceLM]
 
-def get_model(model: Union[VoiceLM, DataParallel[VoiceLM]]) -> VoiceLM:
+
+def get_model(model: Model) -> VoiceLM:
     if isinstance(model, DataParallel):
         return model.module
     return model
-
-
-Model: TypeAlias = Union[DataParallel[VoiceLM], VoiceLM]
 
 
 @torch.no_grad()

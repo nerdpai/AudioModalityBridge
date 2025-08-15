@@ -25,8 +25,8 @@ def sanity_check() -> bool:
         print("Exiting without changes.")
         return False
 
-    shutil.rmtree(RESULTS_PATH)
-    shutil.rmtree(MODELS_PATH)
+    shutil.rmtree(RESULTS_PATH, ignore_errors=True)
+    shutil.rmtree(MODELS_PATH, ignore_errors=True)
     RESULTS_PATH.mkdir(parents=True, exist_ok=True)
     MODELS_PATH.mkdir(parents=True, exist_ok=True)
 

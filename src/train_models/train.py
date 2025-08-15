@@ -94,7 +94,7 @@ def _train(
             predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
 
             loss: Tensor = loss_fn(predicted_y, true_y)
-            loss = loss.sum(dim=1).mean()
+            loss = loss.sum(dim=2).mean()
             accuracy: Tensor = accuracy_fn(predicted_y, true_y)
             accuracy = accuracy.mean()
 
@@ -127,7 +127,7 @@ def _train(
                 predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
 
                 loss: Tensor = loss_fn(predicted_y, true_y)
-                loss = loss.sum(dim=1).mean()
+                loss = loss.sum(dim=2).mean()
                 accuracy: Tensor = accuracy_fn(predicted_y, true_y)
                 accuracy = accuracy.mean()
 

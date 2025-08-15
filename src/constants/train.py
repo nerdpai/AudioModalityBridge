@@ -5,35 +5,35 @@ from src.types.preset import Preset, PresetsTypes
 from src.models.presets import create_factory, VoiceLMGen
 
 from src.models.llm.llama import LLama3Model
-from src.models.classification.ast import ASTModel
-from src.models.asr.whisper import WhisperModel
+from src.models.classification.wav2vec2 import Wav2Vec2Model as CLSWav2Vec2Model
+from src.models.asr.wav2vec2 import Wav2Vec2Model as ASRWav2Vec2Model
 
 
 # Preset values
 PRESETS: dict[PresetsTypes, Preset] = {
-    "classification/ast": Preset(
-        num_atten_heads=8,
+    "classification/wav2vec2": Preset(
+        num_atten_heads=16,
         translate_chunk_seconds=5.0,
         in_out_rel=8.0,
-        overlap_audio_chunks=True,
+        overlap_audio_chunks=False,
     ),
-    "asr/whisper": Preset(
-        num_atten_heads=6,
+    "asr/wav2vec2": Preset(
+        num_atten_heads=8,
         translate_chunk_seconds=2.0,
-        in_out_rel=8.0,
+        in_out_rel=16.0,
         overlap_audio_chunks=True,
     ),
 }
 
 PRESETS_FACTORY: dict[PresetsTypes, VoiceLMGen] = {
-    "classification/ast": create_factory(
-        PRESETS["classification/ast"],
-        ASTModel,
+    "classification/wav2vec2": create_factory(
+        PRESETS["classification/wav2vec2"],
+        CLSWav2Vec2Model,
         LLama3Model,
     ),
-    "asr/whisper": create_factory(
-        PRESETS["asr/whisper"],
-        WhisperModel,
+    "asr/wav2vec2": create_factory(
+        PRESETS["asr/wav2vec2"],
+        ASRWav2Vec2Model,
         LLama3Model,
     ),
 }  # type: ignore
@@ -42,7 +42,8 @@ PRESETS_FACTORY: dict[PresetsTypes, VoiceLMGen] = {
 # Validation presets
 BATCH_SIZE: Final[int] = 24
 NUM_WORKERS: Final[int] = 24
-NUM_EPOCHS: Final[int] = 1
+NUM_EPOCHS: Final[int] = 3
+MAX_NEW_TOKENS: Final[int] = 128
 BRIDGE_LEARNING_RATE: Final[float] = 1e-3
 AUDIO_LEARNING_RATE: Final[float] = 5e-4
 LEARNING_RATE_FACTOR: Final[float] = 0.9

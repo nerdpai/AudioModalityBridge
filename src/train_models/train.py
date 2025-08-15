@@ -14,8 +14,9 @@ from src.models.presets import VoiceLMGen
 from src.models.voicelm import VoiceLM
 from .prepare import (
     get_model,
-    get_true_labels,
-    get_inputs,
+    get_instruction,
+    get_additional,
+    get_model_inputs,
     prepare_bridge_params,
     prepare_audio_model_params,
 )
@@ -50,6 +51,7 @@ def _train(
     parameters: Iterator[torch.nn.Parameter],
     data_loaders: dict[Splits, DataLoader],
     num_epochs: int,
+    max_new_tokens: int,
     lr: float,
     lr_factor: float,
     patience: int,
@@ -82,9 +84,14 @@ def _train(
             audio_data: list[np.ndarray] = batch[0]
             transcripts: list[str] = batch[1]
 
-            true_y = get_true_labels(transcripts, model)
-            inputs = get_inputs(audio_data, model)
-            predicted_y: Tensor = model(**inputs.asdict())
+            instruction = get_instruction(model)
+            additional = get_additional(model, instruction, transcripts, max_new_tokens)
+
+            text_inputs = get_model_inputs(model, instruction, additional, transcripts)
+            audio_inputs = get_model_inputs(model, instruction, additional, audio_data)
+
+            true_y = model(**text_inputs)  # [batch, seq, hidden]
+            predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
 
             loss: Tensor = loss_fn(predicted_y, true_y)
             loss = loss.sum(dim=1).mean()
@@ -104,9 +111,20 @@ def _train(
                 audio_data: list[np.ndarray] = batch[0]
                 transcripts: list[str] = batch[1]
 
-                true_y = get_true_labels(transcripts, model)
-                inputs = get_inputs(audio_data, model)
-                predicted_y: Tensor = model(**inputs.asdict())
+                instruction = get_instruction(model)
+                additional = get_additional(
+                    model, instruction, transcripts, max_new_tokens
+                )
+
+                text_inputs = get_model_inputs(
+                    model, instruction, additional, transcripts
+                )
+                audio_inputs = get_model_inputs(
+                    model, instruction, additional, audio_data
+                )
+
+                true_y = model(**text_inputs)  # [batch, seq, hidden]
+                predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
 
                 loss: Tensor = loss_fn(predicted_y, true_y)
                 loss = loss.sum(dim=1).mean()
@@ -134,6 +152,7 @@ def train(
     data_loaders: dict[Splits, DataLoader],
     model_creator: VoiceLMGen,
     num_epochs: int,
+    max_new_tokens: int,
     bridge_lr: float,
     audio_lr: float,
     lr_factor: float,
@@ -146,6 +165,7 @@ def train(
         bridge_params,
         data_loaders,
         num_epochs,
+        max_new_tokens,
         bridge_lr,
         lr_factor,
         patience,
@@ -159,6 +179,7 @@ def train(
         audio_params,
         data_loaders,
         num_epochs,
+        max_new_tokens,
         audio_lr,
         lr_factor,
         patience,

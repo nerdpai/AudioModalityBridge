@@ -11,6 +11,8 @@ from src.constants.train import (
     NUM_WORKERS,
     #
     NUM_EPOCHS,
+    MAX_NEW_TOKENS,
+    #
     BRIDGE_LEARNING_RATE,
     AUDIO_LEARNING_RATE,
     LEARNING_RATE_FACTOR,
@@ -42,6 +44,7 @@ def main():
         data_loaders,
         factory,
         NUM_EPOCHS,
+        MAX_NEW_TOKENS,
         BRIDGE_LEARNING_RATE,
         AUDIO_LEARNING_RATE,
         LEARNING_RATE_FACTOR,

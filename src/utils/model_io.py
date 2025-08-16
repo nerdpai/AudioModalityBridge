@@ -1,28 +1,42 @@
 from pathlib import Path
-from typing import Any, TypeVar, Type
+from typing import Any, TypeVar, Type, Callable, Optional
 import pickle
 
 import torch
 import torch.nn as nn
 
-T = TypeVar("T")
+T = TypeVar("T", bound=nn.Module)
 
 
 def save_torch(
     model: nn.Module,
     filepath: Path,
 ) -> None:
-    save_data = {
-        "model": model,
-        "model_state": model.state_dict(),
-    }
+    try:
+        torch.save({"model": model}, filepath)
+    except Exception as e:
+        if filepath.exists():
+            filepath.unlink()
 
-    torch.save(save_data, filepath)
+        print(f"Could not save complete model: {e}")
+        print("Falling back to state_dict")
+
+        torch.save({"model_state": model.state_dict()}, filepath)
 
 
-def load_torch(model_t: Type[T], filepath: Path) -> T:
-    checkpoint = torch.load(filepath, map_location="cpu", weights_only=False)
-    return checkpoint["model"]
+def load_torch(
+    model_t: Type[T],
+    initializer: Optional[Callable[[], T]],
+    filepath: Path,
+) -> T:
+    checkpoint = torch.load(filepath, map_location="cpu")
+
+    if initializer is None:
+        return checkpoint["model"]
+    else:
+        model = initializer()
+        model.load_state_dict(checkpoint["model_state"])
+        return model
 
 
 def save_pickle(obj: Any, filepath: Path) -> None:

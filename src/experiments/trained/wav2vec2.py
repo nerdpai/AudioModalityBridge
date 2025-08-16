@@ -1,13 +1,15 @@
 from pathlib import Path
 
-import numpy as np
 from torchaudio import load
 
+from src.constants.train import PRESETS_FACTORY
 from src.utils.model_io import load_torch
 from src.models.voicelm import VoiceLM
 
-MODEL_PATH = Path("./.models/asr/whisper/model.pt").resolve()
-model = load_torch(VoiceLM, MODEL_PATH)
+MODEL_PATH = Path(".models/classification/wav2vec2/model.pt").resolve()
+model = load_torch(
+    VoiceLM, lambda: PRESETS_FACTORY["classification/wav2vec2"](), MODEL_PATH
+)
 
 audio, sr = load(
     "src/experiments/data/sir.wav",
@@ -19,7 +21,7 @@ audio = audio[0].numpy()
 
 model.to("cuda")
 tokens = model.generate(
-    ["How are you my dear?", audio],
+    [["Tell me about yourself."]],
     max_new_tokens=100,
     do_sample=True,
     temperature=0.8,

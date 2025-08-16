@@ -18,7 +18,6 @@ def save_model(
 ) -> None:
     model_path.mkdir(parents=True, exist_ok=True)
     save_torch(model, model_path / "model.pt")
-    save_pickle(model, model_path / "model.pkl")
 
 
 def plot_data(

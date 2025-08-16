@@ -40,13 +40,13 @@ PRESETS_FACTORY: dict[PresetsTypes, VoiceLMGen] = {
 
 
 # Validation presets
-BATCH_SIZE: Final[int] = 24
-NUM_WORKERS: Final[int] = 24
-NUM_EPOCHS: Final[int] = 3
+BATCH_SIZE: Final[int] = 18
+NUM_WORKERS: Final[int] = 16
+NUM_EPOCHS: Final[int] = 1
 MAX_NEW_TOKENS: Final[int] = 128
 BRIDGE_LEARNING_RATE: Final[float] = 1e-3
 AUDIO_LEARNING_RATE: Final[float] = 5e-4
 LEARNING_RATE_FACTOR: Final[float] = 0.9
-PATIENCE: Final[int] = 15
+PATIENCE: Final[int] = 20
 RESULTS_PATH: Final[Path] = Path("./results/train").resolve()
 MODELS_PATH: Final[Path] = Path("./.models").resolve()

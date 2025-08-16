@@ -47,6 +47,7 @@ def create_model(
 
 
 def _train(
+    desc_prefix: str,
     model: Union[VoiceLM, DataParallel[VoiceLM]],
     parameters: Iterator[torch.nn.Parameter],
     data_loaders: dict[Splits, DataLoader],
@@ -78,7 +79,9 @@ def _train(
         val_losses: list[float] = []
         val_accuracies: list[float] = []
 
-        t = tqdm(data_loaders["train"], desc=f"Epoch {epoch + 1}/{num_epochs}")
+        t = tqdm(
+            data_loaders["train"], desc=f"{desc_prefix} Epoch {epoch + 1}/{num_epochs}"
+        )
         model.train()
         for batch in t:
             audio_data: list[np.ndarray] = batch[0]
@@ -161,6 +164,7 @@ def train(
     model = create_model(model_creator)
     bridge_params = prepare_bridge_params(model)
     bridge_results = _train(
+        "Bridge",
         model,
         bridge_params,
         data_loaders,
@@ -175,6 +179,7 @@ def train(
 
     audio_params = prepare_audio_model_params(model)
     audio_results = _train(
+        "Audio",
         model,
         audio_params,
         data_loaders,

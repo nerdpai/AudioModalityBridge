@@ -228,9 +228,9 @@ class VoiceLM(nn.Module):
 
     @torch.no_grad()
     def process_text_input(
-        self, message: Union[str, dict]
+        self, message: Union[str, list[dict]]
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        if isinstance(message, dict):
+        if isinstance(message, list):
             message = self.tokenizer.apply_chat_template(message, tokenize=False)  # type: ignore
 
         input_ids, attention_mask = self.tokenize_preprocessed([message])  # type: ignore
@@ -299,7 +299,7 @@ class VoiceLM(nn.Module):
         return padded_embeds, padded_masks  # [batch, seq, (hidden)]
 
     @torch.no_grad()
-    def generate(self, batch: list[list[Union[np.ndarray, str, dict]]], **kwargs):
+    def generate(self, batch: list[list[Union[np.ndarray, str, list[dict]]]], **kwargs):
         embeds_batch = []  # [batch, 1, seq, hidden]
         masks_batch = []  # [batch, 1, seq]
 
@@ -307,7 +307,7 @@ class VoiceLM(nn.Module):
             embeds_item: list[torch.Tensor] = []
             masks_item: list[torch.Tensor] = []
             for data in item:
-                if isinstance(data, dict) or isinstance(data, str):
+                if isinstance(data, list) or isinstance(data, str):
                     embeds, mask = self.process_text_input(data)  # [1, seq, hidden]
                 elif isinstance(data, np.ndarray):
                     embeds, mask = self.process_audio_input(data)  # [1, seq, hidden]

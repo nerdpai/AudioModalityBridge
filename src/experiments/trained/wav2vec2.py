@@ -18,10 +18,22 @@ audio, sr = load(
     backend="ffmpeg",
 )
 audio = audio[0].numpy()
+tokenizer = model.tokenizer
 
 model.to("cuda")
+
+template = [
+    {
+        "role": "system",
+        "content": "You are a helpful assistant who just repeats after the user.",
+    },
+]
+instruction: str = tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore
+eos_token: str = tokenizer.eos_token  # type: ignore
+instruction = instruction.removesuffix(eos_token)
+
 tokens = model.generate(
-    [["Tell me about yourself."]],
+    [[instruction, audio, eos_token]],
     max_new_tokens=100,
     do_sample=True,
     temperature=0.8,

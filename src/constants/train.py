@@ -40,6 +40,7 @@ PRESETS_FACTORY: dict[PresetsTypes, VoiceLMGen] = {
 
 
 # Validation presets
+MAX_STEPS: Final[int] = 500
 BATCH_SIZE: Final[int] = 18
 NUM_WORKERS: Final[int] = 16
 NUM_EPOCHS: Final[int] = 1

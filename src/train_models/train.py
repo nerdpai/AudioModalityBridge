@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Union, Literal, Iterator
+from typing import Union, Literal, Iterator, Optional
+from itertools import islice
 
 import numpy as np
 import torch
@@ -52,6 +53,7 @@ def _train(
     parameters: Iterator[torch.nn.Parameter],
     data_loaders: dict[Splits, DataLoader],
     num_epochs: int,
+    max_steps: Optional[int],
     max_new_tokens: int,
     lr: float,
     lr_factor: float,
@@ -79,8 +81,14 @@ def _train(
         val_losses: list[float] = []
         val_accuracies: list[float] = []
 
+        d_loader = data_loaders["train"]
+        if max_steps is not None:
+            d_loader = islice(d_loader, max_steps)
+
         t = tqdm(
-            data_loaders["train"], desc=f"{desc_prefix} Epoch {epoch + 1}/{num_epochs}"
+            d_loader,
+            desc=f"{desc_prefix} Epoch {epoch + 1}/{num_epochs}",
+            total=max_steps,
         )
         model.train()
         for batch in t:
@@ -155,6 +163,7 @@ def train(
     data_loaders: dict[Splits, DataLoader],
     model_creator: VoiceLMGen,
     num_epochs: int,
+    max_steps: Optional[int],
     max_new_tokens: int,
     bridge_lr: float,
     audio_lr: float,
@@ -169,6 +178,7 @@ def train(
         bridge_params,
         data_loaders,
         num_epochs,
+        max_steps,
         max_new_tokens,
         bridge_lr,
         lr_factor,
@@ -184,6 +194,7 @@ def train(
         audio_params,
         data_loaders,
         num_epochs,
+        max_steps,
         max_new_tokens,
         audio_lr,
         lr_factor,

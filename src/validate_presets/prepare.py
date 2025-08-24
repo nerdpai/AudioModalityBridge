@@ -6,7 +6,7 @@ import torch
 from torch.nn import DataParallel
 from transformers.tokenization_utils_base import BatchEncoding
 
-from src.constants.few_shot import FEW_SHOT_TEMPLATES
+from src.constants.template import GENERATION_TEMPLATE
 from src.models.voicelm import VoiceLM
 
 Model: TypeAlias = Union[DataParallel[VoiceLM], VoiceLM]
@@ -46,8 +46,7 @@ def get_instruction(model: Model) -> str:
     voicelm = get_model(model)
     eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
 
-    [language] = random.sample(list(FEW_SHOT_TEMPLATES.keys()), 1)
-    template = FEW_SHOT_TEMPLATES[language]
+    template = GENERATION_TEMPLATE
     instruction: str = voicelm.tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore
     return instruction.removesuffix(eos_token)
 

@@ -1,7 +1,7 @@
 jq --slurp '
   def score: 
     map(
-      . + {score: ((.best_loss | log10) + (.mean_loss | log10)? // (.best_loss | log10) * 2.2395572632422884)}
+      . + {score: (((.best_loss | log10) + (.mean_loss | log10)? // (.best_loss | log10) * 2.2395572632422884) * (1.0 - .best_accuracy))}
     ) | 
     sort_by(.score) | 
     .[0:5];

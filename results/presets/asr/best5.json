@@ -1,86 +1,86 @@
 {
   "whisper": [
     {
-      "preset": "Preset(num_atten_heads=12, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=False)",
-      "best_loss": 1120.0,
-      "best_accuracy": 0.7578125,
-      "mean_loss": 3081.92,
-      "mean_accuracy": 0.59642578125,
-      "score": 6.538039383850284
+      "preset": "Preset(num_atten_heads=6, translate_chunk_seconds=2.0, in_out_rel=8.0, overlap_audio_chunks=True)",
+      "best_loss": 1296.0,
+      "best_accuracy": 0.83203125,
+      "mean_loss": 3423.52,
+      "mean_accuracy": 0.57671875,
+      "score": 1.1165013611223304
     },
     {
-      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=False)",
-      "best_loss": 1120.0,
-      "best_accuracy": 0.7578125,
-      "mean_loss": 3087.52,
-      "mean_accuracy": 0.59576171875,
-      "score": 6.538827802172399
+      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=2.0, in_out_rel=8.0, overlap_audio_chunks=True)",
+      "best_loss": 1312.0,
+      "best_accuracy": 0.828125,
+      "mean_loss": 3412.0,
+      "mean_accuracy": 0.57732421875,
+      "score": 1.14313080363885
     },
     {
-      "preset": "Preset(num_atten_heads=6, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=False)",
-      "best_loss": 1104.0,
-      "best_accuracy": 0.76171875,
-      "mean_loss": 3154.56,
-      "mean_accuracy": 0.59052734375,
-      "score": 6.541907865531792
+      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=2.0, in_out_rel=8.0, overlap_audio_chunks=True)",
+      "best_loss": 1352.0,
+      "best_accuracy": 0.82421875,
+      "mean_loss": 3455.68,
+      "mean_accuracy": 0.5734765625,
+      "score": 1.1723748417946833
     },
     {
-      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=False)",
-      "best_loss": 1128.0,
-      "best_accuracy": 0.7578125,
-      "mean_loss": 3181.44,
-      "mean_accuracy": 0.58623046875,
-      "score": 6.5549328367702095
+      "preset": "Preset(num_atten_heads=6, translate_chunk_seconds=1.0, in_out_rel=16.0, overlap_audio_chunks=False)",
+      "best_loss": 1272.0,
+      "best_accuracy": 0.80078125,
+      "mean_loss": 3290.72,
+      "mean_accuracy": 0.6087890625,
+      "score": 1.319182344311325
     },
     {
-      "preset": "Preset(num_atten_heads=6, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=True)",
-      "best_loss": 1168.0,
-      "best_accuracy": 0.7578125,
-      "mean_loss": 3126.4,
-      "mean_accuracy": 0.5875390625,
-      "score": 6.562487384815059
+      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=1.0, in_out_rel=16.0, overlap_audio_chunks=False)",
+      "best_loss": 1272.0,
+      "best_accuracy": 0.80078125,
+      "mean_loss": 3307.36,
+      "mean_accuracy": 0.605078125,
+      "score": 1.3196187407356657
     }
   ],
   "wav2vec2": [
+    {
+      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=1.0, in_out_rel=16.0, overlap_audio_chunks=True)",
+      "best_loss": 1208.0,
+      "best_accuracy": 0.8203125,
+      "mean_loss": 3303.04,
+      "mean_accuracy": 0.610546875,
+      "score": 1.186113731631218
+    },
+    {
+      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=1.0, in_out_rel=16.0, overlap_audio_chunks=True)",
+      "best_loss": 1208.0,
+      "best_accuracy": 0.8203125,
+      "mean_loss": 3308.48,
+      "mean_accuracy": 0.6108203125,
+      "score": 1.1862421508001422
+    },
     {
       "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=2.0, in_out_rel=16.0, overlap_audio_chunks=True)",
       "best_loss": 1056.0,
       "best_accuracy": 0.796875,
       "mean_loss": 2850.4,
       "mean_accuracy": 0.6442578125,
-      "score": 6.478569727540752
+      "score": 1.3159594759067152
     },
     {
-      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=1.0, in_out_rel=8.0, overlap_audio_chunks=False)",
-      "best_loss": 1072.0,
-      "best_accuracy": 0.79296875,
-      "mean_loss": 2852.0,
-      "mean_accuracy": 0.644296875,
-      "score": 6.485344306536579
+      "preset": "Preset(num_atten_heads=8, translate_chunk_seconds=1.0, in_out_rel=16.0, overlap_audio_chunks=False)",
+      "best_loss": 1584.0,
+      "best_accuracy": 0.80078125,
+      "mean_loss": 3232.8,
+      "mean_accuracy": 0.6234765625,
+      "score": 1.336625135738638
     },
     {
-      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=2.0, in_out_rel=16.0, overlap_audio_chunks=True)",
-      "best_loss": 1072.0,
-      "best_accuracy": 0.79296875,
-      "mean_loss": 2852.64,
-      "mean_accuracy": 0.643984375,
-      "score": 6.485441752990548
-    },
-    {
-      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=1.0, in_out_rel=8.0, overlap_audio_chunks=False)",
-      "best_loss": 1072.0,
-      "best_accuracy": 0.79296875,
-      "mean_loss": 2853.28,
-      "mean_accuracy": 0.6441015625,
-      "score": 6.485539177584508
-    },
-    {
-      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=2.0, in_out_rel=16.0, overlap_audio_chunks=False)",
-      "best_loss": 1032.0,
-      "best_accuracy": 0.78515625,
-      "mean_loss": 2994.88,
-      "mean_accuracy": 0.626484375,
-      "score": 6.49005912288734
+      "preset": "Preset(num_atten_heads=16, translate_chunk_seconds=1.0, in_out_rel=1.5, overlap_audio_chunks=False)",
+      "best_loss": 1584.0,
+      "best_accuracy": 0.80078125,
+      "mean_loss": 3458.56,
+      "mean_accuracy": 0.5828125,
+      "score": 1.3424655276209183
     }
   ]
 }

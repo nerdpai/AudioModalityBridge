@@ -59,12 +59,11 @@ def get_additional(
     max_new_tokens: int,
 ) -> list[str]:
     voicelm = get_model(model)
-    eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
     instructions = [instruction] * len(transcripts)
 
     inputs = []
     for instruction, transcript in zip(instructions, transcripts):
-        inputs.append([instruction, transcript, eos_token])
+        inputs.append([instruction, transcript])
 
     additional_ids: torch.Tensor = voicelm.generate(
         inputs,
@@ -76,10 +75,6 @@ def get_additional(
     additional: list[str] = voicelm.tokenizer.batch_decode(
         additional_ids, skip_special_tokens=False
     )
-
-    for i, text in enumerate(additional):
-        rm_pos = text.find(eos_token)
-        additional[i] = text[:rm_pos]
 
     return additional
 

@@ -25,7 +25,7 @@ model.to("cuda")
 template = [
     {
         "role": "system",
-        "content": "You are a helpful assistant who just repeats after the user.",
+        "content": "You are an assistant that continuous the user's input.",
     },
 ]
 instruction: str = tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore

@@ -29,7 +29,11 @@ def load_torch(
     initializer: Optional[Callable[[], T]],
     filepath: Path,
 ) -> T:
-    checkpoint = torch.load(filepath, map_location="cpu")
+    checkpoint = torch.load(
+        filepath,
+        map_location="cpu",
+        weights_only=initializer is not None,
+    )
 
     if initializer is None:
         return checkpoint["model"]

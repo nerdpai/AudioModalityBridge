@@ -6,13 +6,11 @@ from src.constants.train import PRESETS_FACTORY
 from src.utils.model_io import load_torch
 from src.models.voicelm import VoiceLM
 
-MODEL_PATH = Path(".models/classification/wav2vec2/model.pt").resolve()
-model = load_torch(
-    VoiceLM, lambda: PRESETS_FACTORY["classification/wav2vec2"](), MODEL_PATH
-)
+MODEL_PATH = Path(".models/asr/whisper/model.pt").resolve()
+model = load_torch(VoiceLM, None, MODEL_PATH)
 
 audio, sr = load(
-    "src/experiments/data/sir.wav",
+    ".datasets/mozilla_common_voice/audio/en/test/common_voice_en_1075.mp3",
     normalize=True,
     channels_first=True,
     backend="ffmpeg",
@@ -25,7 +23,11 @@ model.to("cuda")
 template = [
     {
         "role": "system",
-        "content": "You are a helpful assistant who just repeats after the user.",
+        "content": "You are a helpful assistant who continues the user's input",
+    },
+    {
+        "role": "user",
+        "content": "",
     },
 ]
 instruction: str = tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore
@@ -33,10 +35,10 @@ eos_token: str = tokenizer.eos_token  # type: ignore
 instruction = instruction.removesuffix(eos_token)
 
 tokens = model.generate(
-    [[instruction, audio, eos_token]],
+    [[instruction, audio, eos_token, "assistant:"]],
     max_new_tokens=100,
     do_sample=True,
-    temperature=0.8,
+    temperature=1.0,
 )
 output = model.tokenizer.decode(tokens[0].tolist())
 print(output)

@@ -12,7 +12,7 @@ model = load_torch(
 )
 
 audio, sr = load(
-    "src/experiments/data/sir.wav",
+    ".datasets/mozilla_common_voice/audio/en/test/common_voice_en_10341.mp3",
     normalize=True,
     channels_first=True,
     backend="ffmpeg",
@@ -26,6 +26,10 @@ template = [
     {
         "role": "system",
         "content": "You are an assistant that continuous the user's input.",
+    },
+    {
+        "role": "user",
+        "content": "",
     },
 ]
 instruction: str = tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore

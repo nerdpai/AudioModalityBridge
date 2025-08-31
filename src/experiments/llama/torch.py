@@ -53,3 +53,6 @@ with torch.no_grad():
 
     print(f"Embedding of next token: {outputs.last_hidden_state[0, -1, :]}")
     print(f"Shape of the sequence: {outputs.last_hidden_state.shape}")
+    head_logits = llm_model.lm_head(outputs.last_hidden_state)
+    print(f"Shape of the logits: {head_logits.shape}")
+    print(f"Logits of next token: {head_logits[0, -1, :]}")

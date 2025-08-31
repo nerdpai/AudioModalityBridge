@@ -87,13 +87,23 @@ def get_audio_preprocessed(model: Model, audio_samples: list[np.ndarray]):
     return model.audio_bridge.preprocess_audio(audio_samples)
 
 
-def remove_eos_token(additional: list[str], eos_token: str) -> list[str]:
-    texts = []
-    for text in additional:
-        rm_pos = text.find(eos_token)
-        texts.append(text[:rm_pos])
+@torch.no_grad()
+def remove_last_token(model: Model, additional: list[str]) -> list[str]:
+    voicelm = get_model(model)
+    tokenizer = voicelm.tokenizer
 
-    return texts
+    tokenized = [
+        tokenizer.encode(
+            text, add_special_tokens=False, padding=False, truncation=False
+        )
+        for text in additional
+    ]
+    truncated = [tokens[:-1] for tokens in tokenized]
+    decoded = [
+        tokenizer.decode(tokens, skip_special_tokens=False) for tokens in truncated
+    ]
+
+    return decoded
 
 
 @torch.no_grad()
@@ -134,9 +144,7 @@ def get_train_inputs(
     voicelm = get_model(model)
 
     eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
-    additional = remove_eos_token(
-        additional, eos_token
-    )  # remove eos_token from the end, which we predict
+    additional = remove_last_token(voicelm, additional)
     additional = [
         eos_token + text for text in additional
     ]  # add eos_token to the beginning, after lm_head it will predict first token from additional

@@ -24,6 +24,7 @@ class LLama3Model(LanguageModel):
         super().__init__(
             model,
             model.model,
+            model.lm_head,
             model.model.embed_tokens,
             tokenizer,
         )

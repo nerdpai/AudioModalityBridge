@@ -78,10 +78,6 @@ def get_additional(
         additional_ids, skip_special_tokens=False
     )
 
-    for i, text in enumerate(additional):
-        rm_pos = text.find(eos_token)
-        additional[i] = text[:rm_pos]
-
     return additional
 
 
@@ -91,33 +87,72 @@ def get_audio_preprocessed(model: Model, audio_samples: list[np.ndarray]):
     return model.audio_bridge.preprocess_audio(audio_samples)
 
 
+def remove_eos_token(additional: list[str], eos_token: str) -> list[str]:
+    texts = []
+    for text in additional:
+        rm_pos = text.find(eos_token)
+        texts.append(text[:rm_pos])
+
+    return texts
+
+
 @torch.no_grad()
-def get_model_inputs(
+def get_accuracy(
+    model: Model,
+    predicted_y: torch.Tensor,  # [batch, seq, vocab]
+    true_y: torch.Tensor,  # [batch, seq]
+) -> float:
+    probabilities = torch.gather(
+        predicted_y, dim=-1, index=true_y.unsqueeze(-1)
+    ).squeeze(-1)
+
+    return probabilities.mean().item()
+
+
+@torch.no_grad()
+def get_true_y(
+    model: Model,
+    additional: list[str],
+) -> torch.Tensor:
+    ids, _ = get_ids(model, additional)
+    return ids
+
+
+@torch.no_grad()
+def get_ignore_token(model: Model) -> int:
+    voicelm = get_model(model)
+    return voicelm.tokenizer.pad_token_id  # type: ignore
+
+
+@torch.no_grad()
+def get_train_inputs(
     model: Model,
     instruction: str,
     additional: list[str],
-    input_data: Union[list[np.ndarray], list[str]],
+    input_data: list[np.ndarray],
 ) -> dict[str, Optional[torch.Tensor]]:
     voicelm = get_model(model)
+
+    eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
+    additional = remove_eos_token(
+        additional, eos_token
+    )  # remove eos_token from the end, which we predict
+    additional = [
+        eos_token + text for text in additional
+    ]  # add eos_token to the beginning, after lm_head it will predict first token from additional
 
     instruction_ids, instruction_mask = get_ids(
         voicelm, [instruction] * len(input_data)
     )
     additional_ids, additional_mask = get_ids(voicelm, additional)
 
-    input_ids = None
-    audio_inputs = None
-    chunk_mask = None
-    if isinstance(input_data[0], str):
-        input_ids, attention_mask = get_ids(voicelm, input_data)
-    else:
-        preprocessed = get_audio_preprocessed(voicelm, input_data)
-        audio_inputs = preprocessed.audio_inputs
-        chunk_mask = preprocessed.chunk_mask
-        attention_mask = preprocessed.attention_mask
+    preprocessed = get_audio_preprocessed(voicelm, input_data)
+    audio_inputs = preprocessed.audio_inputs
+    chunk_mask = preprocessed.chunk_mask
+    attention_mask = preprocessed.attention_mask
 
     return {
-        "input_ids": input_ids,
+        "input_ids": None,
         "attention_mask": attention_mask,
         "instruction_ids": instruction_ids,
         "instruction_mask": instruction_mask,

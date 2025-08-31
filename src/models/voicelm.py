@@ -3,6 +3,7 @@ from typing import Optional, Union
 import numpy as np
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 from .audio_bridge import AudioBridge
 from .language_model import LanguageModel
@@ -198,14 +199,19 @@ class VoiceLM(nn.Module):
         else:
             raise ValueError("Either input_ids or audio_samples must be provided.")
 
-        input_embeds, attention_mask = self.add_eos_token(input_embeds, attention_mask)
+        # better to just add eos_token to additional_ids
+        # input_embeds, attention_mask = self.add_eos_token(input_embeds, attention_mask)
 
         rearange = self.gather_rearange(
             instruction_mask, additional_mask, attention_mask
         )
         arange, attention_mask = self.gather_mask(attention_mask, additional_mask)
-        input_embeds = torch.cat([input_embeds, additional_embeds], dim=1)
-        input_embeds, _ = self.gather(input_embeds, None, arange)
+        input_embeds = torch.cat(
+            [input_embeds, additional_embeds], dim=1
+        )  # audio + pad_audio + additional + additional_pad
+        input_embeds, _ = self.gather(
+            input_embeds, None, arange
+        )  # audio + additional + pad
 
         input_embeds = torch.cat([instruction_embeds, input_embeds], dim=1)
         attention_mask = torch.cat([instruction_mask, attention_mask], dim=1)
@@ -217,14 +223,17 @@ class VoiceLM(nn.Module):
             return_dict=True,
         )
 
-        last_hidden, _ = self.gather(last_hidden, None, rearange)
+        last_hidden, _ = self.gather(
+            last_hidden, None, rearange
+        )  # instruction + additional + pad
         last_hidden = last_hidden[
             :,
             instruction_mask.shape[1] : instruction_mask.shape[1]
             + additional_mask.shape[1],
             :,
-        ]
-        return last_hidden
+        ]  # additional + pad
+
+        return self.language_model.lm_head(last_hidden)
 
     @torch.no_grad()
     def process_text_input(

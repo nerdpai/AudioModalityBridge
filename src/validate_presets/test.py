@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
-from torch.nn import DataParallel
+from torch.nn import DataParallel, functional as F
 from tqdm import tqdm
 
 from src.utils.cleanup import cleanup_model
@@ -16,7 +16,10 @@ from src.models.voicelm import VoiceLM
 from .prepare import (
     get_instruction,
     get_additional,
-    get_model_inputs,
+    get_train_inputs,
+    get_true_y,
+    get_ignore_token,
+    get_accuracy,
     prepare_parameters,
 )
 
@@ -60,9 +63,9 @@ def test_preset(
     accuracies = []
 
     model = create_model(model_creator)
+    ignore_token = get_ignore_token(model)
 
-    loss_fn = torch.nn.MSELoss(reduction="none")
-    accuracy_fn = torch.nn.CosineSimilarity(dim=1)
+    loss_fn = torch.nn.CrossEntropyLoss(ignore_index=ignore_token, reduction="mean")
     optimizer = torch.optim.Adam(get_trainable_parameters(model), lr=lr)
 
     data_iter = iter(data_loader)
@@ -79,19 +82,17 @@ def test_preset(
         instruction = get_instruction(model)
         additional = get_additional(model, instruction, transcripts, max_new_tokens)
 
-        text_inputs = get_model_inputs(model, instruction, additional, transcripts)
-        audio_inputs = get_model_inputs(model, instruction, additional, audio_data)
+        audio_inputs = get_train_inputs(model, instruction, additional, audio_data)
 
-        true_y = model(**text_inputs)  # [batch, seq, hidden]
-        predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
+        true_y = get_true_y(model, additional)
+        predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, vocab]
+        predicted_y = F.softmax(predicted_y, dim=-1)  # [batch, seq, vocab]
 
-        loss: Tensor = loss_fn(predicted_y, true_y)
-        loss = loss.sum(dim=2).mean()
-        accuracy: Tensor = accuracy_fn(predicted_y, true_y)
-        accuracy = accuracy.mean()
+        loss: Tensor = loss_fn(predicted_y.permute(0, 2, 1), true_y)
+        accuracy = get_accuracy(model, predicted_y, true_y)
 
         losses.append(loss.item())
-        accuracies.append(accuracy.item())
+        accuracies.append(accuracy)
 
         t.set_postfix_str(f"Loss: {losses[-1]:.4f}, Accuracy: {accuracies[-1]:.4f}")
 

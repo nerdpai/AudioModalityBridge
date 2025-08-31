@@ -23,8 +23,8 @@ PRESETS: list[Preset] = [
 # Validation presets
 MAX_STEPS: Final[int] = 50
 MAX_GEN_LENGTH: Final[int] = 128
-BATCH_SIZE: Final[int] = 6
+BATCH_SIZE: Final[int] = 1
 DATA_SPLIT: Final[Splits] = "train"
-NUM_WORKERS: Final[int] = 20
+NUM_WORKERS: Final[int] = 3
 LEARNING_RATE: Final[float] = 1e-3
 RESULTS_PATH: Final[Path] = Path("./results/presets").resolve()

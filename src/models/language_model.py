@@ -18,6 +18,7 @@ class LanguageModel(nn.Module):
         self,
         model: PreTrainedModel,
         step_model: PreTrainedModel,
+        lm_head: nn.Linear,
         embed_layer: nn.Module,
         tokenizer: PreTrainedTokenizerFast,
     ):
@@ -25,6 +26,7 @@ class LanguageModel(nn.Module):
 
         self.model = model
         self.step_model = step_model
+        self.lm_head = lm_head
         self.embed_layer = embed_layer
         self.tokenizer = tokenizer
 

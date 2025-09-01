@@ -198,7 +198,7 @@ class VoiceLM(nn.Module):
         else:
             raise ValueError("Either input_ids or audio_samples must be provided.")
 
-        input_embeds, attention_mask = self.add_eos_token(input_embeds, attention_mask)
+        # input_embeds, attention_mask = self.add_eos_token(input_embeds, attention_mask)
 
         rearange = self.gather_rearange(
             instruction_mask, additional_mask, attention_mask

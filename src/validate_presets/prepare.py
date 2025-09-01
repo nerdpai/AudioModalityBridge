@@ -112,11 +112,10 @@ def get_accuracy(
     predicted_y: torch.Tensor,  # [batch, seq, vocab]
     true_y: torch.Tensor,  # [batch, seq]
 ) -> float:
-    probabilities = torch.gather(
-        predicted_y, dim=-1, index=true_y.unsqueeze(-1)
-    ).squeeze(-1)
-
-    return probabilities.mean().item()
+    predicted_labels = predicted_y.argmax(dim=-1)
+    correct = (predicted_labels == true_y).float().sum()
+    total = true_y.numel()
+    return (correct / total).item()
 
 
 @torch.no_grad()

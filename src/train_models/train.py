@@ -7,6 +7,7 @@ import torch
 from torch import Tensor
 from torch.utils.data import DataLoader
 from torch.nn import DataParallel
+from torch.nn import functional as F
 from tqdm import tqdm
 
 from src.types.dataset import Splits
@@ -17,9 +18,13 @@ from .prepare import (
     get_model,
     get_instruction,
     get_additional,
-    get_model_inputs,
-    prepare_bridge_params,
-    prepare_audio_model_params,
+    get_instruction,
+    get_additional,
+    get_train_inputs,
+    get_true_y,
+    get_ignore_token,
+    get_accuracy,
+    prepare_parameters,
 )
 
 
@@ -31,13 +36,11 @@ class Result:
     dev_accuracy: list[list[float]]
 
 
-Results = dict[Literal["bridge", "audio"], Result]
-
-
 def create_model(
     model_creator: VoiceLMGen,
 ) -> Union[VoiceLM, DataParallel[VoiceLM]]:
     model = model_creator()
+    prepare_parameters(model)
 
     if torch.cuda.is_available():
         if torch.cuda.device_count() > 1:
@@ -64,8 +67,8 @@ def _train(
     dev_loss = []
     dev_accuracy = []
 
-    loss_fn = torch.nn.MSELoss(reduction="none")
-    accuracy_fn = torch.nn.CosineSimilarity(dim=1)
+    ignore_token = get_ignore_token(model)
+    loss_fn = torch.nn.CrossEntropyLoss(ignore_index=ignore_token, reduction="mean")
     optimizer = torch.optim.Adam(parameters, lr=lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
@@ -98,19 +101,17 @@ def _train(
             instruction = get_instruction(model)
             additional = get_additional(model, instruction, transcripts, max_new_tokens)
 
-            text_inputs = get_model_inputs(model, instruction, additional, transcripts)
-            audio_inputs = get_model_inputs(model, instruction, additional, audio_data)
+            audio_inputs = get_train_inputs(model, instruction, additional, audio_data)
 
-            true_y = model(**text_inputs)  # [batch, seq, hidden]
-            predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
+            true_y = get_true_y(model, additional)
+            predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, vocab]
+            predicted_y = F.softmax(predicted_y, dim=-1)  # [batch, seq, vocab]
 
-            loss: Tensor = loss_fn(predicted_y, true_y)
-            loss = loss.sum(dim=2).mean()
-            accuracy: Tensor = accuracy_fn(predicted_y, true_y)
-            accuracy = accuracy.mean()
+            loss: Tensor = loss_fn(predicted_y.permute(0, 2, 1), true_y)
+            accuracy = get_accuracy(model, predicted_y, true_y)
 
             losses.append(loss.item())
-            accuracies.append(accuracy.item())
+            accuracies.append(accuracy)
 
             loss.backward()
             optimizer.step()
@@ -127,23 +128,19 @@ def _train(
                     model, instruction, transcripts, max_new_tokens
                 )
 
-                text_inputs = get_model_inputs(
-                    model, instruction, additional, transcripts
-                )
-                audio_inputs = get_model_inputs(
+                audio_inputs = get_train_inputs(
                     model, instruction, additional, audio_data
                 )
 
-                true_y = model(**text_inputs)  # [batch, seq, hidden]
-                predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, hidden]
+                true_y = get_true_y(model, additional)
+                predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, vocab]
+                predicted_y = F.softmax(predicted_y, dim=-1)  # [batch, seq, vocab]
 
-                loss: Tensor = loss_fn(predicted_y, true_y)
-                loss = loss.sum(dim=2).mean()
-                accuracy: Tensor = accuracy_fn(predicted_y, true_y)
-                accuracy = accuracy.mean()
+                loss: Tensor = loss_fn(predicted_y.permute(0, 2, 1), true_y)
+                accuracy = get_accuracy(model, predicted_y, true_y)
 
                 val_losses.append(loss.item())
-                val_accuracies.append(accuracy.item())
+                val_accuracies.append(accuracy)
 
             t.set_postfix_str(
                 f"Loss: {losses[-1]:.2f}, "
@@ -159,6 +156,12 @@ def _train(
     return Result(train_loss, train_accuracy, dev_loss, dev_accuracy)
 
 
+def get_trainable_parameters(model: Union[VoiceLM, DataParallel[VoiceLM]]):
+    if isinstance(model, DataParallel):
+        return model.module.audio_bridge.bridge_model.parameters()
+    return model.audio_bridge.bridge_model.parameters()
+
+
 def train(
     data_loaders: dict[Splits, DataLoader],
     model_creator: VoiceLMGen,
@@ -166,16 +169,14 @@ def train(
     max_steps: Optional[int],
     max_new_tokens: int,
     bridge_lr: float,
-    audio_lr: float,
     lr_factor: float,
     patience: int,
-) -> tuple[Results, VoiceLM]:
+) -> tuple[Result, VoiceLM]:
     model = create_model(model_creator)
-    bridge_params = prepare_bridge_params(model)
     bridge_results = _train(
         "Bridge",
         model,
-        bridge_params,
+        get_trainable_parameters(model),
         data_loaders,
         num_epochs,
         max_steps,
@@ -187,24 +188,6 @@ def train(
 
     cleanup_cache()
 
-    audio_params = prepare_audio_model_params(model)
-    audio_results = _train(
-        "Audio",
-        model,
-        audio_params,
-        data_loaders,
-        num_epochs,
-        max_steps,
-        max_new_tokens,
-        audio_lr,
-        lr_factor,
-        patience,
-    )
-
-    results: Results = {
-        "bridge": bridge_results,
-        "audio": audio_results,
-    }
     model = get_model(model)
     model.to("cpu")
-    return results, model
+    return bridge_results, model

@@ -13,14 +13,14 @@ from src.models.classification.wav2vec2 import Wav2Vec2Model
 PRESETS: dict[PresetsTypes, Preset] = {
     "classification/wav2vec2": Preset(
         num_atten_heads=16,
-        translate_chunk_seconds=5.0,
-        in_out_rel=8.0,
+        translate_chunk_seconds=2.0,
+        in_out_rel=16.0,
         overlap_audio_chunks=False,
     ),
     "asr/whisper": Preset(
-        num_atten_heads=6,
-        translate_chunk_seconds=2.0,
-        in_out_rel=8.0,
+        num_atten_heads=16,
+        translate_chunk_seconds=1.0,
+        in_out_rel=4.0,
         overlap_audio_chunks=True,
     ),
 }
@@ -40,14 +40,13 @@ PRESETS_FACTORY: dict[PresetsTypes, VoiceLMGen] = {
 
 
 # Train constants
-MAX_STEPS: Final[Optional[int]] = 500
+MAX_STEPS: Final[Optional[int]] = None
 BATCH_SIZE: Final[int] = 18
-NUM_WORKERS: Final[int] = 16
-NUM_EPOCHS: Final[int] = 1
+NUM_WORKERS: Final[int] = 20
+NUM_EPOCHS: Final[int] = 3
 MAX_NEW_TOKENS: Final[int] = 128
 BRIDGE_LEARNING_RATE: Final[float] = 1e-3
-AUDIO_LEARNING_RATE: Final[float] = 5e-4
 LEARNING_RATE_FACTOR: Final[float] = 0.9
-PATIENCE: Final[int] = 25
+PATIENCE: Final[int] = 50
 RESULTS_PATH: Final[Path] = Path("./results/train").resolve()
 MODELS_PATH: Final[Path] = Path("./.models").resolve()

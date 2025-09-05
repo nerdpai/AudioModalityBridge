@@ -1,7 +1,7 @@
-from src.constants.few_shot import FEW_SHOT_TEMPLATES
+from src.constants.template import GENERATION_TEMPLATE
 from src.constants.train import PRESETS_FACTORY
 
-template = FEW_SHOT_TEMPLATES["italian"]
+template = GENERATION_TEMPLATE
 
 voicelm = PRESETS_FACTORY["classification/ast"]()
 

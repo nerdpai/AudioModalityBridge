@@ -18,13 +18,12 @@ from .prepare import (
     get_model,
     get_instruction,
     get_additional,
-    get_instruction,
-    get_additional,
     get_train_inputs,
     get_true_y,
-    get_ignore_token,
     get_accuracy,
-    prepare_parameters,
+    get_ignore_token,
+    prepare_bridge_params,
+    prepare_end_to_end_params,
 )
 
 
@@ -36,11 +35,13 @@ class Result:
     dev_accuracy: list[list[float]]
 
 
+Results = dict[Literal["bridge", "end_to_end"], Result]
+
+
 def create_model(
     model_creator: VoiceLMGen,
 ) -> Union[VoiceLM, DataParallel[VoiceLM]]:
     model = model_creator()
-    prepare_parameters(model)
 
     if torch.cuda.is_available():
         if torch.cuda.device_count() > 1:
@@ -168,12 +169,6 @@ def _train(
     return Result(train_loss, train_accuracy, dev_loss, dev_accuracy)
 
 
-def get_trainable_parameters(model: Union[VoiceLM, DataParallel[VoiceLM]]):
-    if isinstance(model, DataParallel):
-        return model.module.audio_bridge.bridge_model.parameters()
-    return model.audio_bridge.bridge_model.parameters()
-
-
 def train(
     data_loaders: dict[Splits, DataLoader],
     model_creator: VoiceLMGen,
@@ -181,14 +176,16 @@ def train(
     max_steps: Optional[int],
     max_new_tokens: int,
     bridge_lr: float,
+    end_to_end_lr: float,
     lr_factor: float,
     patience: int,
-) -> tuple[Result, VoiceLM]:
+) -> tuple[Results, VoiceLM]:
     model = create_model(model_creator)
+    bridge_params = prepare_bridge_params(model)
     bridge_results = _train(
         "Bridge",
         model,
-        get_trainable_parameters(model),
+        bridge_params,
         data_loaders,
         num_epochs,
         max_steps,
@@ -200,6 +197,24 @@ def train(
 
     cleanup_cache()
 
+    end_to_end_params = prepare_end_to_end_params(model)
+    end_to_end_results = _train(
+        "End-to-End",
+        model,
+        end_to_end_params,
+        data_loaders,
+        num_epochs,
+        max_steps,
+        max_new_tokens,
+        end_to_end_lr,
+        lr_factor,
+        patience,
+    )
+
+    results: Results = {
+        "bridge": bridge_results,
+        "end_to_end": end_to_end_results,
+    }
     model = get_model(model)
     model.to("cpu")
-    return bridge_results, model
+    return results, model

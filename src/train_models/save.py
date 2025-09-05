@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from src.utils.model_io import save_torch, save_pickle
 from src.models.voicelm import VoiceLM
-from .train import Result
+from .train import Results, Result
 
 
 PlotTypes = Literal["train", "validation"]
@@ -70,8 +70,10 @@ def plot_result(result: Result, plot_type: PlotTypes, result_path: Path) -> None
 
 
 def save_results(
-    result: Result,
+    results: Results,
     result_path: Path,
 ) -> None:
-    plot_result(result, "train", result_path / "bridge")
-    plot_result(result, "validation", result_path / "bridge")
+    plot_result(results["end_to_end"], "train", result_path / "end2end")
+    plot_result(results["end_to_end"], "validation", result_path / "end2end")
+    plot_result(results["bridge"], "train", result_path / "bridge")
+    plot_result(results["bridge"], "validation", result_path / "bridge")

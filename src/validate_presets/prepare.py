@@ -6,7 +6,7 @@ import torch
 from torch.nn import DataParallel
 from transformers.tokenization_utils_base import BatchEncoding
 
-from src.constants.few_shot import FEW_SHOT_TEMPLATES
+from src.constants.template import GENERATION_TEMPLATE
 from src.models.voicelm import VoiceLM
 
 Model: TypeAlias = Union[DataParallel[VoiceLM], VoiceLM]
@@ -46,8 +46,7 @@ def get_instruction(model: Model) -> str:
     voicelm = get_model(model)
     eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
 
-    [language] = random.sample(list(FEW_SHOT_TEMPLATES.keys()), 1)
-    template = FEW_SHOT_TEMPLATES[language]
+    template = GENERATION_TEMPLATE
     instruction: str = voicelm.tokenizer.apply_chat_template(template, tokenize=False)  # type: ignore
     return instruction.removesuffix(eos_token)
 
@@ -107,6 +106,25 @@ def remove_last_token(model: Model, additional: list[str]) -> list[str]:
 
 
 @torch.no_grad()
+def remove_first_token(model: Model, additional: list[str]) -> list[str]:
+    voicelm = get_model(model)
+    tokenizer = voicelm.tokenizer
+
+    tokenized = [
+        tokenizer.encode(
+            text, add_special_tokens=False, padding=False, truncation=False
+        )
+        for text in additional
+    ]
+    truncated = [tokens[1:] for tokens in tokenized]
+    decoded = [
+        tokenizer.decode(tokens, skip_special_tokens=False) for tokens in truncated
+    ]
+
+    return decoded
+
+
+@torch.no_grad()
 def get_accuracy(
     model: Model,
     predicted_y: torch.Tensor,  # [batch, seq, vocab]
@@ -123,6 +141,7 @@ def get_true_y(
     model: Model,
     additional: list[str],
 ) -> torch.Tensor:
+    additional = remove_first_token(model, additional)
     ids, _ = get_ids(model, additional)
     return ids
 
@@ -142,11 +161,7 @@ def get_train_inputs(
 ) -> dict[str, Optional[torch.Tensor]]:
     voicelm = get_model(model)
 
-    eos_token: str = voicelm.tokenizer.eos_token  # type: ignore
     additional = remove_last_token(voicelm, additional)
-    additional = [
-        eos_token + text for text in additional
-    ]  # add eos_token to the beginning, after lm_head it will predict first token from additional
 
     instruction_ids, instruction_mask = get_ids(
         voicelm, [instruction] * len(input_data)

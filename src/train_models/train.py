@@ -54,6 +54,7 @@ def create_model(
 def _train(
     desc_prefix: str,
     model: Union[VoiceLM, DataParallel[VoiceLM]],
+    orig_model: VoiceLM,
     parameters: Iterator[torch.nn.Parameter],
     data_loaders: dict[Splits, DataLoader],
     num_epochs: int,
@@ -100,7 +101,9 @@ def _train(
             transcripts: list[str] = batch[1]
 
             instruction = get_instruction(model)
-            additional = get_additional(model, instruction, transcripts, max_new_tokens)
+            additional = get_additional(
+                orig_model, instruction, transcripts, max_new_tokens
+            )
 
             audio_inputs = get_train_inputs(model, instruction, additional, audio_data)
 
@@ -132,7 +135,7 @@ def _train(
 
                 instruction = get_instruction(model)
                 additional = get_additional(
-                    model, instruction, transcripts, max_new_tokens
+                    orig_model, instruction, transcripts, max_new_tokens
                 )
 
                 audio_inputs = get_train_inputs(
@@ -181,10 +184,12 @@ def train(
     patience: int,
 ) -> tuple[Results, VoiceLM]:
     model = create_model(model_creator)
+    orig_model = get_model(create_model(model_creator))
     bridge_params = prepare_bridge_params(model)
     bridge_results = _train(
         "Bridge",
         model,
+        orig_model,
         bridge_params,
         data_loaders,
         num_epochs,
@@ -201,6 +206,7 @@ def train(
     end_to_end_results = _train(
         "End-to-End",
         model,
+        orig_model,
         end_to_end_params,
         data_loaders,
         num_epochs,

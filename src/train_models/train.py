@@ -107,6 +107,12 @@ def _train(
             predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, vocab]
             predicted_y = F.softmax(predicted_y, dim=-1)  # [batch, seq, vocab]
 
+            if predicted_y.size(1) != true_y.size(1):
+                print(
+                    f"Warning: predicted_y and true_y have different sequence lengths: {predicted_y.size(1), true_y.size(1)}"
+                )
+                continue
+
             loss: Tensor = loss_fn(predicted_y.permute(0, 2, 1), true_y)
             accuracy = get_accuracy(model, predicted_y, true_y)
 
@@ -135,6 +141,12 @@ def _train(
                 true_y = get_true_y(model, additional)
                 predicted_y: Tensor = model(**audio_inputs)  # [batch, seq, vocab]
                 predicted_y = F.softmax(predicted_y, dim=-1)  # [batch, seq, vocab]
+
+                if predicted_y.size(1) != true_y.size(1):
+                    print(
+                        f"Warning for validation: predicted_y and true_y have different sequence lengths: {predicted_y.size(1), true_y.size(1)}"
+                    )
+                    continue
 
                 loss: Tensor = loss_fn(predicted_y.permute(0, 2, 1), true_y)
                 accuracy = get_accuracy(model, predicted_y, true_y)

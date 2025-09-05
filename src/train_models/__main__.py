@@ -15,6 +15,7 @@ from src.constants.train import (
     MAX_NEW_TOKENS,
     #
     BRIDGE_LEARNING_RATE,
+    E2E_LEARNING_RATE,
     LEARNING_RATE_FACTOR,
     PATIENCE,
     #
@@ -47,6 +48,7 @@ def main():
         MAX_STEPS,
         MAX_NEW_TOKENS,
         BRIDGE_LEARNING_RATE,
+        E2E_LEARNING_RATE,
         LEARNING_RATE_FACTOR,
         PATIENCE,
     )

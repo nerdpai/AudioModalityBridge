@@ -46,6 +46,7 @@ NUM_WORKERS: Final[int] = 20
 NUM_EPOCHS: Final[int] = 3
 MAX_NEW_TOKENS: Final[int] = 128
 BRIDGE_LEARNING_RATE: Final[float] = 1e-3
+E2E_LEARNING_RATE: Final[float] = 1e-4
 LEARNING_RATE_FACTOR: Final[float] = 0.9
 PATIENCE: Final[int] = 50
 RESULTS_PATH: Final[Path] = Path("./results/train").resolve()

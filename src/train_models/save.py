@@ -60,8 +60,8 @@ def plot_result(result: Result, plot_type: PlotTypes, result_path: Path) -> None
         loss = result.dev_loss
         accuracy = result.dev_accuracy
 
-    loss_epoch: list[float] = np.mean(loss, axis=1).tolist()
-    accuracy_epoch: list[float] = np.mean(accuracy, axis=1).tolist()
+    loss_epoch: list[float] = [np.mean(epoch).item() for epoch in loss]
+    accuracy_epoch: list[float] = [np.mean(epoch).item() for epoch in accuracy]
     loss_batch: list[float] = np.concatenate(loss).tolist()
     accuracy_batch: list[float] = np.concatenate(accuracy).tolist()
 

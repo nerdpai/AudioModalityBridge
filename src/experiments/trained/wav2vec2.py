@@ -6,8 +6,10 @@ from src.constants.train import PRESETS_FACTORY
 from src.utils.model_io import load_torch
 from src.models.voicelm import VoiceLM
 
-MODEL_PATH = Path(".models/asr/whisper/model.pt").resolve()
-model = load_torch(VoiceLM, None, MODEL_PATH)
+MODEL_PATH = Path(".models/classification/wav2vec2/model.pt").resolve()
+model = load_torch(
+    VoiceLM, lambda: PRESETS_FACTORY["classification/wav2vec2"](), MODEL_PATH
+)
 
 audio, sr = load(
     "src/experiments/data/sir.wav",

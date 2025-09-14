@@ -39,6 +39,7 @@ def load_torch(
         return checkpoint["model"]
     else:
         model = initializer()
+        checkpoint["model_state"].pop("language_model.lm_head.weight", None)
         model.load_state_dict(checkpoint["model_state"])
         return model
 

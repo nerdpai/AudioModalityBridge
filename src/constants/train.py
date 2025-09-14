@@ -13,7 +13,7 @@ from src.models.classification.wav2vec2 import Wav2Vec2Model
 PRESETS: dict[PresetsTypes, Preset] = {
     "classification/wav2vec2": Preset(
         num_atten_heads=16,
-        translate_chunk_seconds=5.0,
+        translate_chunk_seconds=1.0,
         in_out_rel=8.0,
         overlap_audio_chunks=False,
     ),

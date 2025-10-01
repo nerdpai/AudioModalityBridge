@@ -5,11 +5,10 @@
 .conda/**
 .cache/**
 .datasets/**
-dsets/**
 .hf/**
 .experiments/**
-.results/**
 .models/**
 .temp/**
+.data/**
 
 secrets.json
